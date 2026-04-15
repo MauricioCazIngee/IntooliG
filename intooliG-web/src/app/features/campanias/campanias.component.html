@@ -1,0 +1,119 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <div class="row">
+        <div class="col-md-10">
+          <h4 style="margin: 0; text-align: left">Campaña Alta-Baja-Cambios</h4>
+        </div>
+        <div class="col-md-2 text-right">
+          <button *ngIf="auth.isAdmin()" type="button" class="btn btn-success btn-new" (click)="openNew()">
+            Nuevo
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="card-body card-body-custom">
+      <div class="dataTables_wrapper">
+        <div class="dataTables_filter mb-2">
+          <label>
+            Buscar:
+            <input
+              type="text"
+              class="form-control form-control-sm d-inline-block w-auto ml-2"
+              placeholder="Código o nombre"
+              [(ngModel)]="query"
+              (ngModelChange)="onSearchChange()"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div class="scroll table-responsive" style="background-color: #ffffff; overflow-x: auto">
+        <table class="table table-bordered table-striped table-hover campanias-table">
+          <thead>
+            <tr>
+              <th (click)="sortBy('codigo')">Código <span>{{ sortIcon('codigo') }}</span></th>
+              <th (click)="sortBy('nombre')">Nombre <span>{{ sortIcon('nombre') }}</span></th>
+              <th (click)="sortBy('descripcion')">Descripción <span>{{ sortIcon('descripcion') }}</span></th>
+              <th (click)="sortBy('activa')">Estado <span>{{ sortIcon('activa') }}</span></th>
+              <th (click)="sortBy('fechaInicio')">Fecha Inicio <span>{{ sortIcon('fechaInicio') }}</span></th>
+              <th (click)="sortBy('fechaFin')">Fecha Fin <span>{{ sortIcon('fechaFin') }}</span></th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="7" class="text-center py-4">Cargando campañas...</td>
+            </tr>
+            <tr *ngIf="!loading && loadError">
+              <td colspan="7" class="text-center text-danger py-4">{{ loadError }}</td>
+            </tr>
+            <tr *ngFor="let c of pagedItems">
+              <td>{{ c.codigo }}</td>
+              <td>{{ c.nombre }}</td>
+              <td>{{ c.descripcion || '-' }}</td>
+              <td>
+                <span class="badge" [class.badge-active]="c.activa" [class.badge-inactive]="!c.activa">
+                  {{ c.activa ? 'Activa' : 'Inactiva' }}
+                </span>
+              </td>
+              <td>{{ c.fechaInicio ? (c.fechaInicio | date : 'dd/MM/yyyy') : '-' }}</td>
+              <td>{{ c.fechaFin ? (c.fechaFin | date : 'dd/MM/yyyy') : '-' }}</td>
+              <td class="actions">
+                <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openEdit(c)">
+                  <i class="fa fa-pencil"></i>
+                </button>
+                <button
+                  *ngIf="auth.isAdmin()"
+                  type="button"
+                  class="btn btn-default btn-sm btn-delete"
+                  (click)="askDelete(c)"
+                >
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!loading && !loadError && pagedItems.length === 0">
+              <td colspan="7" class="text-center py-4">No se encontraron campañas.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar" *ngIf="!loading && visibleItems.length > 0">
+        <button class="btn-page" [disabled]="page === 1" (click)="goToPage(page - 1)">Anterior</button>
+        <button
+          class="btn-page"
+          *ngFor="let p of pageNumbers"
+          [class.active]="p === page"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+        <button class="btn-page" [disabled]="page === totalPages" (click)="goToPage(page + 1)">
+          Siguiente
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-campanias-modal
+  [visible]="showModal"
+  [saving]="modalSaving"
+  [campania]="editingItem"
+  [existingCodes]="existingCodigos"
+  (close)="closeModal()"
+  (save)="saveFromModal($event)"
+/>
+
+<app-confirm-dialog
+  [visible]="showDeleteDialog"
+  [loading]="deleting"
+  [title]="'Confirmar eliminación'"
+  [message]="'¿Está seguro de eliminar la campaña ' + (selectedToDelete?.codigo || '') + '?'"
+  confirmText="Sí"
+  cancelText="No"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteDialog()"
+/>

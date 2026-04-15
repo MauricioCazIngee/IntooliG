@@ -1,0 +1,32 @@
+# == .NET Core / .NET 8 ==
+# Estos son los artefactos de compilación y configuración local de .NET
+bin/
+obj/
+out/
+appsettings.Development.json  # Ignora configuración local de desarrollo
+*.user
+*.suo
+*.dbmdl
+*.cache
+*.pidb
+**/Properties/launchSettings.json # Ignora la configuración local de lanzamiento
+# Archivos de Visual Studio
+.vs/
+# == Angular (y Node.js) ==
+node_modules/      # Dependencias de npm (miles de archivos)
+dist/              # La compilación del frontend
+coverage/          # Reportes de pruebas
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# == Archivos del Sistema y del Editor ==
+# Estos son específicos de tu computadora o editor de texto
+.DS_Store          # Archivo de sistema de macOS
+Thumbs.db          # Archivo de sistema de Windows
+.vscode/           # Configuración local de VS Code (a menos que sea compartida)
+.idea/             # Configuración local de JetBrains Rider
+*.swp
+*.swo
+*~

@@ -1,0 +1,57 @@
+<div *ngIf="visible" class="modal fade show d-block" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">{{ title() }}</h5>
+        <button type="button" class="close" aria-label="Close" [disabled]="saving" (click)="cancel()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Código *</label>
+          <input class="form-control" [(ngModel)]="form.codigo" [disabled]="saving" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Nombre *</label>
+          <input class="form-control" [(ngModel)]="form.nombre" [disabled]="saving" />
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Descripción</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="form.descripcion" [disabled]="saving"></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group col-md-6">
+            <label class="form-label">Fecha inicio</label>
+            <input type="date" class="form-control" [(ngModel)]="form.fechaInicio" [disabled]="saving" />
+          </div>
+          <div class="form-group col-md-6">
+            <label class="form-label">Fecha fin</label>
+            <input type="date" class="form-control" [(ngModel)]="form.fechaFin" [disabled]="saving" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="checkline">
+            <input type="checkbox" [(ngModel)]="form.activa" [disabled]="saving" />
+            Activa
+          </label>
+        </div>
+
+        <p *ngIf="error" class="text-danger mb-0">{{ error }}</p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" [disabled]="saving" (click)="cancel()">Cancelar</button>
+        <button type="button" class="btn btn-success btn-new" [disabled]="saving" (click)="submit()">
+          {{ saving ? 'Guardando...' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="visible" class="modal-backdrop fade show"></div>

@@ -1,0 +1,235 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <h4 style="margin: 0; text-align: center">Radar de Comunicaciones</h4>
+    </div>
+    <div class="card-body card-body-custom">
+      <div class="row">
+        <div class="col-sm-2">
+          <label><b>Año</b></label>
+          <input type="number" class="form-control" [(ngModel)]="filtros.anio" />
+        </div>
+        <div class="col-sm-2">
+          <label><b>Semana</b></label>
+          <input type="number" class="form-control" [(ngModel)]="filtros.semana" />
+        </div>
+        <div class="col-sm-2">
+          <label><b>Categoría</b></label>
+          <input type="number" class="form-control" [(ngModel)]="filtros.categoria" />
+        </div>
+        <div class="col-sm-3">
+          <label><b>Marca</b></label>
+          <input type="text" class="form-control" [(ngModel)]="filtros.marca" />
+        </div>
+        <div class="col-sm-1">
+          <label><b>País</b></label>
+          <input type="number" class="form-control" [(ngModel)]="filtros.pais" />
+        </div>
+        <div class="col-sm-2">
+          <label><b>Medio</b></label>
+          <input type="text" class="form-control" [(ngModel)]="filtros.medio" />
+        </div>
+        <div class="col-sm-2">
+          <label><b>Rubro</b></label>
+          <input type="number" class="form-control" [(ngModel)]="filtros.rubro" />
+        </div>
+        <div class="col-sm-2 d-flex align-items-end">
+          <button class="btn btn-success btn-new w-100" (click)="consultar()" [disabled]="loading">
+            {{ loading ? 'Consultando...' : 'Consultar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <ul class="nav nav-tabs card-header-tabs">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'estados'" (click)="setTab('estados')">Estados</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'inversion'" (click)="setTab('inversion')">Inversión</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'factores'" (click)="setTab('factores')">Factores de Riesgo</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'evolucion'" (click)="setTab('evolucion')">Evolución Semanal</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="activeTab === 'top5'" (click)="setTab('top5')">Top 5</a>
+        </li>
+      </ul>
+    </div>
+    <div class="card-body card-body-custom">
+      <div class="table-responsive" *ngIf="activeTab === 'estados'">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Semana</th>
+              <th>Estado</th>
+              <th>Código Mapa</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && estadosRows.length === 0">
+              <td colspan="5" class="text-center">Sin datos.</td>
+            </tr>
+            <tr *ngFor="let r of estadosRows">
+              <td>{{ r.fcNombreCategoria }}</td>
+              <td>{{ r.semana }}</td>
+              <td>{{ r.fcNombreEstado }}</td>
+              <td>{{ r.fcNombreCodigoMapa }}</td>
+              <td>{{ r.fnPrecio ?? 0 | number : '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-responsive" *ngIf="activeTab === 'inversion'">
+        <h6>SPWEBRadarInversionMarcaMedios</h6>
+        <table class="table table-bordered table-striped table-hover mb-4">
+          <thead>
+            <tr>
+              <th>Categoría</th>
+              <th>Año</th>
+              <th>Semana</th>
+              <th>Medio</th>
+              <th>Precio</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && inversionRows.length === 0">
+              <td colspan="5" class="text-center">Sin datos.</td>
+            </tr>
+            <tr *ngFor="let r of inversionRows">
+              <td>{{ r.fcNombreCategoria }}</td>
+              <td>{{ r.anio }}</td>
+              <td>{{ r.semana }}</td>
+              <td>{{ r.fcNombreMedio }}</td>
+              <td>{{ r.fnPrecio ?? 0 | number : '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h6>SPWEBRadarInversionMarcaMediosVersion</h6>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Cliente</th>
+              <th>Medio</th>
+              <th>Versión</th>
+              <th>Inserciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && inversionVersionRows.length === 0">
+              <td colspan="4" class="text-center">Sin datos.</td>
+            </tr>
+            <tr *ngFor="let r of inversionVersionRows">
+              <td>{{ r.fcNombreCliente }}</td>
+              <td>{{ r.fcNombreMedio }}</td>
+              <td>{{ r.fcNombreVersionFuente }}</td>
+              <td>{{ r.ins }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-responsive" *ngIf="activeTab === 'factores'">
+        <h6>SPWEBRadarMarcaFactoresRiesgo</h6>
+        <table class="table table-bordered table-striped table-hover mb-4">
+          <thead>
+            <tr>
+              <th>Año</th>
+              <th>Semana</th>
+              <th>Marca</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && factoresRows.length === 0">
+              <td colspan="4" class="text-center">Sin datos.</td>
+            </tr>
+            <tr *ngFor="let r of factoresRows">
+              <td>{{ r.fiAnio }}</td>
+              <td>{{ r.fiSemana }}</td>
+              <td>{{ r.fcNombreMarca }}</td>
+              <td>{{ r.valor ?? 0 | number : '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h6>SPWEBRadarMarcaValoresAgregados</h6>
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Rubro</th>
+              <th>Concepto</th>
+              <th>Estatus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && valoresAgregadosRows.length === 0">
+              <td colspan="3" class="text-center">Sin datos.</td>
+            </tr>
+            <tr *ngFor="let r of valoresAgregadosRows">
+              <td>{{ r.fiRubroid }}</td>
+              <td>{{ r.fcNombreConcepto }}</td>
+              <td>{{ r.fbEstatus }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-responsive" *ngIf="activeTab === 'evolucion'">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>FechaOrden</th>
+              <th>Año</th>
+              <th>Semana</th>
+              <th>Marca</th>
+              <th>Valor</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && evolucionRows.length === 0">
+              <td colspan="5" class="text-center">Sin datos.</td>
+            </tr>
+            <tr *ngFor="let r of evolucionRows">
+              <td>{{ r.fechaOrden }}</td>
+              <td>{{ r.anio }}</td>
+              <td>{{ r.semana }}</td>
+              <td>{{ r.fcNombreMarca }}</td>
+              <td>{{ r.valor ?? 0 | number : '1.2-2' }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-responsive" *ngIf="activeTab === 'top5'">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Concepto</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="!loading && top5Rows.length === 0">
+              <td colspan="2" class="text-center">Sin datos.</td>
+            </tr>
+            <tr *ngFor="let r of top5Rows; index as i">
+              <td>{{ i + 1 }}</td>
+              <td>{{ r.fcNombreConcepto }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

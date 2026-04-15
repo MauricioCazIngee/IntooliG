@@ -1,0 +1,16 @@
+@IntooliG.Api_HostAddress = https://localhost:7218
+
+### Login (obtener JWT)
+POST {{IntooliG.Api_HostAddress}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin@demo.local",
+  "password": "Demo123!"
+}
+
+### Listar campañas (sustituir TOKEN)
+GET {{IntooliG.Api_HostAddress}}/api/campanias
+Authorization: Bearer TOKEN
+
+###

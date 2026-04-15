@@ -1,0 +1,50 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <div class="row">
+        <div class="col-md-8">
+          <h4 style="margin: 0">Dashboard de Reportes</h4>
+        </div>
+        <div class="col-md-4 text-right">
+          <button class="btn btn-success btn-new mr-2" (click)="exportExcel()" [disabled]="!kpis">Exportar Excel</button>
+          <button class="btn btn-info-custom" (click)="exportPdf()" [disabled]="!kpis">Exportar PDF</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body card-body-custom">
+      <p *ngIf="loading" class="mb-0">Cargando KPIs...</p>
+      <p *ngIf="loadError" class="text-danger mb-0">{{ loadError }}</p>
+
+      <div *ngIf="kpis" class="kpis-grid mb-4">
+        <div class="kpi-item">
+          <span>Total campañas</span>
+          <strong>{{ kpis.totalCampanias }}</strong>
+        </div>
+        <div class="kpi-item">
+          <span>Campañas activas</span>
+          <strong>{{ kpis.campaniasActivas }}</strong>
+        </div>
+        <div class="kpi-item">
+          <span>Total usuarios</span>
+          <strong>{{ kpis.totalUsuarios }}</strong>
+        </div>
+      </div>
+
+      <div *ngIf="kpis" class="row">
+        <div class="col-md-6 mb-3">
+          <div class="chart-card">
+            <h6>Campañas (Activas/Inactivas)</h6>
+            <canvas #campaniasChart></canvas>
+          </div>
+        </div>
+        <div class="col-md-6 mb-3">
+          <div class="chart-card">
+            <h6>Usuarios por rol</h6>
+            <canvas #usuariosChart></canvas>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

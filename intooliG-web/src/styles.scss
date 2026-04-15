@@ -1,0 +1,255 @@
+@import 'bootstrap/dist/css/bootstrap.min.css';
+@import 'font-awesome/css/font-awesome.min.css';
+
+/* Site.css exacto del proyecto MVC */
+.field-validation-error {
+  color: #e80c4d;
+  font-weight: bold;
+}
+
+input.input-validation-error {
+  border: 1px solid #e80c4d;
+}
+
+/* Estilos de _Layout.cshtml */
+body {
+  overflow-x: hidden;
+  background-color: #eee;
+}
+
+@import url(//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css);
+
+.ingeenius-home {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.ingeenius-administracion {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.ingeenius-configuracion {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.ingeenius-radar {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.ingeenius-actividad-publicitaria {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.ingeenius-postbuy {
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.fa-2x {
+  font-size: 2em;
+}
+
+.fa {
+  position: relative;
+  display: inline-table;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 20px;
+}
+
+.faw {
+  width: 60px;
+  height: 36px;
+}
+
+.main-menu:hover,
+nav.main-menu.expanded {
+  width: 250px;
+  overflow: visible;
+}
+
+.main-menu {
+  background: #151b2d;
+  border-right: 1px solid #2d2d2c;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  height: 100%;
+  left: 0;
+  width: 60px;
+  overflow: hidden;
+  -webkit-transition: width 0.05s linear;
+  transition: width 0.05s linear;
+  -webkit-transform: translateZ(0) scale(1, 1);
+  z-index: 1000;
+}
+
+.main-menu > ul {
+  margin: 7px 0;
+}
+
+.main-menu li {
+  position: relative;
+  display: block;
+  width: 250px;
+}
+
+.main-menu li > a {
+  position: relative;
+  display: table;
+  border-collapse: collapse;
+  border-spacing: 0;
+  font-size: 14px;
+  text-decoration: none;
+  -webkit-transform: translateZ(0) scale(1, 1);
+  -webkit-transition: all 0.1s linear;
+  transition: all 0.1s linear;
+  cursor: pointer;
+}
+
+.main-menu .nav-icon {
+  position: relative;
+  display: table-cell;
+  width: 60px;
+  height: 36px;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 18px;
+}
+
+.main-menu .nav-text {
+  position: relative;
+  display: table-cell;
+  vertical-align: middle;
+  width: 190px;
+}
+
+.main-menu > ul.logout {
+  position: absolute;
+  left: 0;
+  bottom: 30px;
+}
+
+.no-touch .scrollable.hover {
+  overflow-y: hidden;
+}
+
+.no-touch .scrollable.hover:hover {
+  overflow-y: auto;
+  overflow: visible;
+}
+
+a:hover,
+a:focus {
+  color: white;
+  text-decoration: none;
+}
+
+nav {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+nav ul,
+nav li {
+  outline: 0;
+  margin: 0;
+  padding: 0;
+}
+
+ul li:hover {
+  color: white;
+  background-color: #1872b6;
+}
+
+ul li a:hover {
+  color: white;
+}
+
+.main-menu li:hover > a,
+nav.main-menu li.active > a,
+.dropdown-menu > li > a:focus,
+.dropdown-menu > .active > a,
+.dropdown-menu > .active > a:hover,
+.dropdown-menu > .active > a:focus,
+.no-touch .dashboard-page nav.dashboard-menu ul li:hover a,
+.dashboard-page nav.dashboard-menu ul li.active a {
+  color: white;
+  background-color: #1872b6;
+}
+
+.main-menu li a:hover > a {
+  color: white;
+}
+
+.area {
+  float: left;
+  background: #151b2d;
+  width: 100%;
+  height: 100%;
+}
+
+.amenu {
+  color: #2d2d2c;
+}
+
+.amenu :hover {
+  color: red;
+}
+
+.jumbotron {
+  margin-left: 60px;
+  padding-top: 15px;
+  background: transparent;
+}
+
+.page-footer {
+  margin-left: 60px;
+}
+
+/* Soporte visual DataTables como en Index.cshtml */
+.dataTables_wrapper {
+  margin-top: 15px;
+}
+
+.dataTables_wrapper .dataTables_paginate {
+  margin-top: 15px !important;
+  float: right !important;
+  text-align: right;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  padding: 6px 12px !important;
+  margin-left: 2px !important;
+  border: 1px solid #dee2e6 !important;
+  background-color: white !important;
+  color: #5dc1a5 !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  display: inline-block;
+  text-decoration: none !important;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button.current {
+  background: #5dc1a5 !important;
+  color: white !important;
+  border-color: #5dc1a5 !important;
+}
+
+.dataTables_wrapper .dataTables_info {
+  padding-top: 0.85em !important;
+  float: left !important;
+  color: #6c757d;
+}
+
+.table.dataTable {
+  margin-bottom: 15px !important;
+  border-collapse: collapse !important;
+}

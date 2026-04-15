@@ -1,0 +1,16 @@
+.form-label {
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.checkline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-new {
+  background: #5dc1a5 !important;
+  border-color: #5dc1a5 !important;
+  color: #fff !important;
+}

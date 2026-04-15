@@ -1,0 +1,142 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <div class="row">
+        <div class="col-md-10">
+          <h4 style="margin: 0; text-align: left">Administración de Usuarios</h4>
+        </div>
+        <div class="col-md-2 text-right">
+          <button type="button" class="btn btn-success btn-new" (click)="openNew()">Nuevo</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body card-body-custom">
+      <div class="dataTables_wrapper">
+        <div class="dataTables_filter mb-2">
+          <label>
+            Buscar:
+            <input
+              type="text"
+              class="form-control form-control-sm d-inline-block w-auto ml-2"
+              placeholder="Email o nombre"
+              [(ngModel)]="query"
+              (ngModelChange)="onSearchChange()"
+            />
+          </label>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table table-bordered table-striped table-hover">
+          <thead>
+            <tr>
+              <th>Email</th>
+              <th>Nombre</th>
+              <th>Cliente</th>
+              <th>Rol</th>
+              <th>Fecha creación</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngIf="loading">
+              <td colspan="6" class="text-center py-4">Cargando usuarios...</td>
+            </tr>
+            <tr *ngIf="!loading && loadError">
+              <td colspan="6" class="text-center text-danger py-4">{{ loadError }}</td>
+            </tr>
+            <tr *ngFor="let u of pagedItems">
+              <td>{{ u.email }}</td>
+              <td>{{ u.nombre }}</td>
+              <td>{{ u.clienteId }}</td>
+              <td>
+                <span class="badge badge-pill" [class.badge-success]="u.rol === 'Admin'" [class.badge-secondary]="u.rol !== 'Admin'">
+                  {{ u.rol }}
+                </span>
+              </td>
+              <td>{{ u.fechaCreacionUtc | date : 'dd/MM/yyyy HH:mm' }}</td>
+              <td class="actions">
+                <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openEdit(u)">
+                  <i class="fa fa-pencil"></i>
+                </button>
+                <button type="button" class="btn btn-default btn-sm btn-info-custom" (click)="changeRol(u, u.rol === 'Admin' ? 'Usuario' : 'Admin')">
+                  <i class="fa fa-exchange"></i>
+                </button>
+                <button type="button" class="btn btn-default btn-sm btn-warning-custom" (click)="openResetPassword(u)">
+                  <i class="fa fa-key"></i>
+                </button>
+                <button type="button" class="btn btn-default btn-sm btn-delete" (click)="askDelete(u)">
+                  <i class="fa fa-trash"></i>
+                </button>
+              </td>
+            </tr>
+            <tr *ngIf="!loading && !loadError && pagedItems.length === 0">
+              <td colspan="6" class="text-center py-4">No se encontraron usuarios.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-bar" *ngIf="!loading && visibleItems.length > 0">
+        <button class="btn-page" [disabled]="page === 1" (click)="goToPage(page - 1)">Anterior</button>
+        <button
+          class="btn-page"
+          *ngFor="let p of pageNumbers"
+          [class.active]="p === page"
+          (click)="goToPage(p)"
+        >
+          {{ p }}
+        </button>
+        <button class="btn-page" [disabled]="page === totalPages" (click)="goToPage(page + 1)">Siguiente</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-usuarios-modal
+  [visible]="showModal"
+  [saving]="saving"
+  [usuario]="editingItem"
+  [existingEmails]="existingEmails"
+  (close)="closeModal()"
+  (save)="saveFromModal($event)"
+/>
+
+<app-confirm-dialog
+  [visible]="showDeleteDialog"
+  [loading]="deleting"
+  [title]="'Confirmar eliminación'"
+  [message]="'¿Está seguro de eliminar el usuario ' + (selectedToDelete?.email || '') + '?'"
+  confirmText="Sí"
+  cancelText="No"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDeleteDialog()"
+/>
+
+<div *ngIf="showResetDialog" class="modal fade show d-block" tabindex="-1" role="dialog">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Restablecer contraseña</h5>
+        <button type="button" class="close" (click)="closeResetDialog()">
+          <span>&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p>Usuario: <strong>{{ selectedToReset?.email }}</strong></p>
+        <div class="form-group">
+          <label>Nueva contraseña</label>
+          <input type="password" class="form-control" [(ngModel)]="newPassword" />
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeResetDialog()">Cancelar</button>
+        <button class="btn btn-warning-custom" [disabled]="resetting" (click)="confirmResetPassword()">
+          {{ resetting ? 'Procesando...' : 'Restablecer' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="showResetDialog" class="modal-backdrop fade show"></div>

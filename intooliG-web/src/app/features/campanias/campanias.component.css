@@ -1,0 +1,130 @@
+.card-custom {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.card-header-custom {
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  padding: 15px;
+}
+
+.card-body-custom {
+  padding: 15px;
+}
+
+.dataTables_wrapper .dataTables_filter {
+  margin-bottom: 10px;
+  text-align: right;
+}
+
+.campanias-table th,
+.campanias-table td {
+  vertical-align: middle;
+}
+
+.campanias-table th {
+  user-select: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.campanias-table th:last-child {
+  cursor: default;
+}
+
+.badge {
+  border-radius: 10px;
+  padding: 4px 9px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-active {
+  background: #5dc1a5;
+  color: #fff;
+}
+
+.badge-inactive {
+  background: #6c757d;
+  color: #fff;
+}
+
+.actions {
+  min-width: 140px;
+  text-align: center;
+}
+
+.actions .btn + .btn {
+  margin-left: 6px;
+}
+
+.btn-new {
+  background-color: #5dc1a5 !important;
+  border-color: #5dc1a5 !important;
+  color: #fff;
+}
+
+.btn-new:hover {
+  background-color: #4a9f8c !important;
+  border-color: #4a9f8c !important;
+  color: #fff;
+}
+
+.btn-edit {
+  background-color: #f0ad4e !important;
+  border-color: #eea236 !important;
+  color: #fff !important;
+}
+
+.btn-edit:hover {
+  background-color: #ec971f !important;
+  border-color: #d58512 !important;
+  color: #fff;
+}
+
+.btn-delete {
+  background-color: #d8514a !important;
+  border-color: #d43f3a !important;
+  color: #fff !important;
+}
+
+.btn-delete:hover {
+  background-color: #c9302c !important;
+  border-color: #ac2925 !important;
+  color: #fff;
+}
+
+.pagination-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.btn-page {
+  padding: 6px 12px;
+  margin-left: 2px;
+  border: 1px solid #dee2e6;
+  background-color: white;
+  color: #5dc1a5;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-page:hover:not(:disabled) {
+  background-color: #f8f9fa;
+}
+
+.btn-page.active {
+  background: #5dc1a5;
+  border-color: #5dc1a5;
+  color: #fff;
+}
+
+.btn-page:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+}
