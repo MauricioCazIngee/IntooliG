@@ -1,0 +1,385 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <h4 style="margin: 0">Sector - Categoría</h4>
+    </div>
+    <div class="card-body card-body-custom">
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'sectores'" href="javascript:void(0)" (click)="setTab('sectores')">Sectores</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'bus'" href="javascript:void(0)" (click)="setTab('bus')">BU</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'categorias'" href="javascript:void(0)" (click)="setTab('categorias')">Categorías</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'marcas'" href="javascript:void(0)" (click)="setTab('marcas')">Marcas</a>
+        </li>
+      </ul>
+
+      <!-- Sectores -->
+      <div *ngIf="tab === 'sectores'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-4 mb-2 mb-md-0">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm d-inline-block w-auto ml-1" [(ngModel)]="sectoresPageSize" (ngModelChange)="changeSectoresPageSize()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+            <span class="small ml-1">entradas</span>
+          </div>
+          <div class="col-md-5 mb-2 mb-md-0 text-md-right">
+            <label class="mb-0 small">Buscar</label>
+            <input
+              type="text"
+              class="form-control form-control-sm d-inline-block w-auto ml-1"
+              [(ngModel)]="sectoresSearch"
+              (keyup.enter)="onSearchSectores()"
+            />
+            <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="onSearchSectores()">Buscar</button>
+          </div>
+          <div class="col-md-3 text-md-right" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new" (click)="openSectorNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="scroll table-responsive" style="background-color: #ffffff; overflow-x: auto">
+          <table class="table table-bordered table-striped table-hover catalog-table">
+            <thead>
+              <tr>
+                <th>Nombre sector</th>
+                <th>Cliente</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="sectoresLoading">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center py-4">Cargando...</td>
+              </tr>
+              <tr *ngIf="!sectoresLoading && sectoresError">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center text-danger py-4">{{ sectoresError }}</td>
+              </tr>
+              <tr *ngFor="let r of sectores">
+                <td>{{ r.nombreSector }}</td>
+                <td>{{ r.clienteNombre }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td class="actions" *ngIf="auth.isAdmin()">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openSectorEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm btn-delete" (click)="askDelete('sectores', r.id, r.nombreSector)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!sectoresLoading && !sectoresError && sectores.length === 0">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center py-4">Sin registros.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="!sectoresLoading && sectoresTotal > 0">
+          <button class="btn-page" [disabled]="sectoresPage === 1" (click)="goSectoresPage(sectoresPage - 1)">Anterior</button>
+          <button
+            class="btn-page"
+            *ngFor="let p of pageNumbers(sectoresTotal, sectoresPageSize)"
+            [class.active]="p === sectoresPage"
+            (click)="goSectoresPage(p)"
+          >
+            {{ p }}
+          </button>
+          <button
+            class="btn-page"
+            [disabled]="sectoresPage >= pageNumbers(sectoresTotal, sectoresPageSize).length"
+            (click)="goSectoresPage(sectoresPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+
+      <!-- BU -->
+      <div *ngIf="tab === 'bus'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-3 mb-2 mb-md-0">
+            <label class="mb-0 small">Sector</label>
+            <select class="form-control form-control-sm" [(ngModel)]="busSectorFilter" (ngModelChange)="onSearchBus()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let s of sectoresOptions" [ngValue]="s.id">{{ s.nombreSector }}</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2 mb-md-0">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm d-inline-block w-auto ml-1" [(ngModel)]="busPageSize" (ngModelChange)="changeBusPageSize()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+            <span class="small ml-1">entradas</span>
+          </div>
+          <div class="col-md-3 mb-2 mb-md-0 text-md-right">
+            <label class="mb-0 small">Buscar</label>
+            <input type="text" class="form-control form-control-sm d-inline-block w-auto ml-1" [(ngModel)]="busSearch" (keyup.enter)="onSearchBus()" />
+            <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="onSearchBus()">Buscar</button>
+          </div>
+          <div class="col-md-3 text-md-right" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new" (click)="openBuNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="scroll table-responsive" style="background-color: #ffffff; overflow-x: auto">
+          <table class="table table-bordered table-striped table-hover catalog-table">
+            <thead>
+              <tr>
+                <th>Nombre BU</th>
+                <th>Sector</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="busLoading">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center py-4">Cargando...</td>
+              </tr>
+              <tr *ngIf="!busLoading && busError">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center text-danger py-4">{{ busError }}</td>
+              </tr>
+              <tr *ngFor="let r of bus">
+                <td>{{ r.nombreBU }}</td>
+                <td>{{ r.sectorNombre }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td class="actions" *ngIf="auth.isAdmin()">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openBuEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm btn-delete" (click)="askDelete('bus', r.id, r.nombreBU)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!busLoading && !busError && bus.length === 0">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center py-4">Sin registros.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="!busLoading && busTotal > 0">
+          <button class="btn-page" [disabled]="busPage === 1" (click)="goBusPage(busPage - 1)">Anterior</button>
+          <button class="btn-page" *ngFor="let p of pageNumbers(busTotal, busPageSize)" [class.active]="p === busPage" (click)="goBusPage(p)">
+            {{ p }}
+          </button>
+          <button
+            class="btn-page"
+            [disabled]="busPage >= pageNumbers(busTotal, busPageSize).length"
+            (click)="goBusPage(busPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+
+      <!-- Categorías -->
+      <div *ngIf="tab === 'categorias'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-3 mb-2 mb-md-0">
+            <label class="mb-0 small">BU</label>
+            <select class="form-control form-control-sm" [(ngModel)]="catBuFilter" (ngModelChange)="onSearchCat()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let b of busOptions" [ngValue]="b.id">{{ b.nombreBU }}</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2 mb-md-0">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm d-inline-block w-auto ml-1" [(ngModel)]="catPageSize" (ngModelChange)="changeCatPageSize()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+            <span class="small ml-1">entradas</span>
+          </div>
+          <div class="col-md-3 mb-2 mb-md-0 text-md-right">
+            <label class="mb-0 small">Buscar</label>
+            <input type="text" class="form-control form-control-sm d-inline-block w-auto ml-1" [(ngModel)]="catSearch" (keyup.enter)="onSearchCat()" />
+            <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="onSearchCat()">Buscar</button>
+          </div>
+          <div class="col-md-3 text-md-right" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new" (click)="openCatNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="scroll table-responsive" style="background-color: #ffffff; overflow-x: auto">
+          <table class="table table-bordered table-striped table-hover catalog-table">
+            <thead>
+              <tr>
+                <th>Nombre categoría</th>
+                <th>Business Unit</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="catLoading">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center py-4">Cargando...</td>
+              </tr>
+              <tr *ngIf="!catLoading && catError">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center text-danger py-4">{{ catError }}</td>
+              </tr>
+              <tr *ngFor="let r of categorias">
+                <td>{{ r.nombreCategoria }}</td>
+                <td>{{ r.buNombre || '—' }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td class="actions" *ngIf="auth.isAdmin()">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openCatEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm btn-delete" (click)="askDelete('categorias', r.id, r.nombreCategoria)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!catLoading && !catError && categorias.length === 0">
+                <td [attr.colspan]="auth.isAdmin() ? 4 : 3" class="text-center py-4">Sin registros.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="!catLoading && catTotal > 0">
+          <button class="btn-page" [disabled]="catPage === 1" (click)="goCatPage(catPage - 1)">Anterior</button>
+          <button class="btn-page" *ngFor="let p of pageNumbers(catTotal, catPageSize)" [class.active]="p === catPage" (click)="goCatPage(p)">
+            {{ p }}
+          </button>
+          <button class="btn-page" [disabled]="catPage >= pageNumbers(catTotal, catPageSize).length" (click)="goCatPage(catPage + 1)">
+            Siguiente
+          </button>
+        </div>
+      </div>
+
+      <!-- Marcas -->
+      <div *ngIf="tab === 'marcas'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-4 mb-2 mb-md-0">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm d-inline-block w-auto ml-1" [(ngModel)]="marcasPageSize" (ngModelChange)="changeMarcasPageSize()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+            <span class="small ml-1">entradas</span>
+          </div>
+          <div class="col-md-5 mb-2 mb-md-0 text-md-right">
+            <label class="mb-0 small">Buscar</label>
+            <input
+              type="text"
+              class="form-control form-control-sm d-inline-block w-auto ml-1"
+              [(ngModel)]="marcasSearch"
+              (keyup.enter)="onSearchMarcas()"
+            />
+            <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="onSearchMarcas()">Buscar</button>
+          </div>
+          <div class="col-md-3 text-md-right" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new" (click)="openMarcaNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="scroll table-responsive" style="background-color: #ffffff; overflow-x: auto">
+          <table class="table table-bordered table-striped table-hover catalog-table">
+            <thead>
+              <tr>
+                <th>Marca</th>
+                <th>Activo</th>
+                <th>Cliente</th>
+                <th>Logo</th>
+                <th>Producto(s)</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="marcasLoading">
+                <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="text-center py-4">Cargando...</td>
+              </tr>
+              <tr *ngIf="!marcasLoading && marcasError">
+                <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="text-center text-danger py-4">{{ marcasError }}</td>
+              </tr>
+              <tr *ngFor="let r of marcas">
+                <td>{{ r.nombreMarca }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td>{{ r.clienteNombre }}</td>
+                <td class="text-center">
+                  <i class="fa fa-picture-o" *ngIf="r.tieneLogo" style="color: #5dc1a5; font-size: 1.2rem" title="Tiene logo"></i>
+                  <span *ngIf="!r.tieneLogo">—</span>
+                </td>
+                <td class="cell-wrap">{{ r.productosResumen || '—' }}</td>
+                <td class="actions" *ngIf="auth.isAdmin()">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openMarcaEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm btn-delete" (click)="askDelete('marcas', r.id, r.nombreMarca)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!marcasLoading && !marcasError && marcas.length === 0">
+                <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="text-center py-4">Sin registros.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="!marcasLoading && marcasTotal > 0">
+          <button class="btn-page" [disabled]="marcasPage === 1" (click)="goMarcasPage(marcasPage - 1)">Anterior</button>
+          <button
+            class="btn-page"
+            *ngFor="let p of pageNumbers(marcasTotal, marcasPageSize)"
+            [class.active]="p === marcasPage"
+            (click)="goMarcasPage(p)"
+          >
+            {{ p }}
+          </button>
+          <button
+            class="btn-page"
+            [disabled]="marcasPage >= pageNumbers(marcasTotal, marcasPageSize).length"
+            (click)="goMarcasPage(marcasPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-sector-modal
+  [visible]="showSectorModal"
+  [saving]="savingSector"
+  [sector]="editingSector"
+  (close)="closeSectorModal()"
+  (save)="saveSector($event)"
+/>
+
+<app-bu-modal
+  [visible]="showBuModal"
+  [saving]="savingBu"
+  [sectores]="sectoresOptions"
+  [bu]="editingBu"
+  [sectorIdInicial]="buModalSectorInicial"
+  (close)="closeBuModal()"
+  (save)="saveBu($event)"
+/>
+
+<app-categoria-modal
+  [visible]="showCatModal"
+  [saving]="savingCat"
+  [cat]="editingCat"
+  (close)="closeCatModal()"
+  (save)="saveCat($event)"
+/>
+
+<app-marca-modal
+  [visible]="showMarcaModal"
+  [saving]="savingMarca"
+  [marca]="editingMarca"
+  (close)="closeMarcaModal()"
+  (save)="saveMarca($event)"
+/>
+
+<app-confirm-dialog
+  [visible]="showDelete"
+  [loading]="deleting"
+  title="Confirmar eliminación"
+  [message]="'¿Eliminar ' + (deleteTarget?.label || '') + '?'"
+  confirmText="Sí"
+  cancelText="No"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDelete()"
+/>

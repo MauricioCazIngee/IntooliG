@@ -1,0 +1,92 @@
+.card-custom {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.card-header-custom {
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  padding: 15px;
+}
+
+.card-body-custom {
+  padding: 15px;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+}
+
+.catalog-table th,
+.catalog-table td {
+  vertical-align: middle;
+}
+
+.cell-wrap {
+  max-width: 280px;
+  white-space: normal;
+  word-break: break-word;
+  font-size: 13px;
+}
+
+.actions {
+  min-width: 100px;
+  text-align: center;
+}
+
+.actions .btn + .btn {
+  margin-left: 6px;
+}
+
+.btn-new {
+  background-color: #5dc1a5 !important;
+  border-color: #5dc1a5 !important;
+  color: #fff;
+}
+
+.btn-edit {
+  background-color: #f0ad4e !important;
+  border-color: #eea236 !important;
+  color: #fff !important;
+}
+
+.btn-delete {
+  background-color: #d8514a !important;
+  border-color: #d43f3a !important;
+  color: #fff !important;
+}
+
+.pagination-bar {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.btn-page {
+  padding: 6px 12px;
+  margin-left: 2px;
+  border: 1px solid #dee2e6;
+  background-color: white;
+  color: #5dc1a5;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-page:hover:not(:disabled) {
+  background-color: #f8f9fa;
+}
+
+.btn-page.active {
+  background: #5dc1a5;
+  border-color: #5dc1a5;
+  color: #fff;
+}
+
+.btn-page:disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+}

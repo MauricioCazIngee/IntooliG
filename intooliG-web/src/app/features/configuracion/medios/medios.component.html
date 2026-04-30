@@ -1,0 +1,175 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <h4 style="margin: 0">Medios</h4>
+    </div>
+    <div class="card-body card-body-custom">
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'medio'" href="javascript:void(0)" (click)="setTab('medio')">Medio Alta-Baja-Cambios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'medioCliente'" href="javascript:void(0)" (click)="setTab('medioCliente')"
+            >Medio Cliente Alta-Baja-Cambios</a
+          >
+        </li>
+      </ul>
+
+      <div *ngIf="tab === 'medio'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="mediosPageSize" (ngModelChange)="mediosPage = 1; loadMedios()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-5 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="mediosSearch" (keyup.enter)="mediosPage = 1; loadMedios()" />
+          </div>
+          <div class="col-md-5 text-md-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new mt-4" (click)="openMedioNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Nombre medio</th>
+                <th>Nombre medio genérico</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let m of medios">
+                <td>{{ m.nombreMedio }}</td>
+                <td>{{ m.nombreMedioGenerico }}</td>
+                <td>{{ m.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openMedioEdit(m)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteMedio(m)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="mediosTotal > mediosPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="mediosPage <= 1" (click)="mediosPage = mediosPage - 1; loadMedios()">
+            Anterior
+          </button>
+          <span class="small">Página {{ mediosPage }} / {{ pageNumbers(mediosTotal, mediosPageSize).length }}</span>
+          <button
+            type="button"
+            class="btn btn-sm btn-light"
+            [disabled]="mediosPage * mediosPageSize >= mediosTotal"
+            (click)="mediosPage = mediosPage + 1; loadMedios()"
+          >
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="mediosLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+
+      <div *ngIf="tab === 'medioCliente'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">Cliente</label>
+            <select class="form-control form-control-sm" [(ngModel)]="mcClienteFilter" (ngModelChange)="mcPage = 1; loadMedioCliente()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let c of clientesOptions" [ngValue]="c.id">{{ c.nombre }}</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">Medio</label>
+            <select class="form-control form-control-sm" [(ngModel)]="mcMedioFilter" (ngModelChange)="mcPage = 1; loadMedioCliente()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let m of mediosLookup" [ngValue]="m.id">{{ m.nombre }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="mcPageSize" (ngModelChange)="mcPage = 1; loadMedioCliente()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="mcSearch" (keyup.enter)="mcPage = 1; loadMedioCliente()" />
+          </div>
+        </div>
+        <div class="text-md-right mb-2" *ngIf="auth.isAdmin()">
+          <button type="button" class="btn btn-success btn-sm btn-new" (click)="openMcNew()">Nueva asignación</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Medio</th>
+                <th>Cliente</th>
+                <th>Es nacional</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of asignaciones">
+                <td>{{ r.nombreMedio }}</td>
+                <td>{{ r.nombreCliente }}</td>
+                <td>{{ r.esNacional ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openMcEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteMc(r)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="mcTotal > mcPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="mcPage <= 1" (click)="mcPage = mcPage - 1; loadMedioCliente()">Anterior</button>
+          <span class="small">Página {{ mcPage }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="mcPage * mcPageSize >= mcTotal" (click)="mcPage = mcPage + 1; loadMedioCliente()">
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="mcLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-medio-modal
+  [visible]="showMedioModal"
+  [saving]="savingMedio"
+  [medio]="editingMedio"
+  (close)="showMedioModal = false"
+  (save)="saveMedio($event)"
+/>
+
+<app-medio-cliente-modal
+  [visible]="showMcModal"
+  [saving]="savingMc"
+  [asignacion]="editingMc"
+  [mediosOptions]="mediosLookup"
+  [clientesOptions]="clientesOptions"
+  (close)="showMcModal = false"
+  (save)="saveMc($event)"
+/>
+
+<app-confirm-dialog
+  [visible]="showDelete"
+  [loading]="deleting"
+  title="Confirmar"
+  [message]="
+    deleteKind === 'medio'
+      ? '¿Desactivar el medio ' + deleteLabel + '?'
+      : '¿Eliminar la asignación ' + deleteLabel + '?'
+  "
+  [confirmText]="deleteKind === 'medio' ? 'Desactivar' : 'Eliminar'"
+  cancelText="Cancelar"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDelete()"
+/>

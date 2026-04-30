@@ -1,0 +1,170 @@
+<div class="inv-page" *ngIf="!loadingFiltros && filtros; else loadingTpl">
+  <div class="inv-header d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <h3 class="inv-title mb-0">Inversiones</h3>
+    <button type="button" class="btn btn-run" [disabled]="loadingRun" (click)="run()">
+      {{ loadingRun ? 'Ejecutando…' : 'Run' }}
+    </button>
+  </div>
+
+  <p class="text-muted small mb-4">Corporativo: filtros, periodo y rango (MONTHLY = últimos 24 meses, WEEKLY = 709 días hacia atrás desde la fecha final).</p>
+
+  <div class="row">
+    <div class="col-lg-6 mb-3">
+      <div class="inv-card inv-card--accent">
+        <div class="inv-card__head">Filtros principales</div>
+        <div class="inv-card__body">
+          <div class="form-row-2">
+            <div>
+              <label>País</label>
+              <select class="form-control" [(ngModel)]="paisId" (ngModelChange)="onPaisChange()">
+                <option *ngFor="let p of filtros!.paises" [ngValue]="p.id">{{ p.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>Categoría</label>
+              <select class="form-control" [(ngModel)]="categoriaId">
+                <option [ngValue]="null">Todas</option>
+                <option *ngFor="let c of filtros!.categorias" [ngValue]="c.id">{{ c.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>Marca</label>
+              <select class="form-control" [(ngModel)]="marcaId">
+                <option [ngValue]="null">Todas</option>
+                <option *ngFor="let m of filtros!.marcas" [ngValue]="m.id">{{ m.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>Sector</label>
+              <select class="form-control" [(ngModel)]="sectorId" (ngModelChange)="onSectorChange()">
+                <option *ngFor="let s of filtros!.sectores" [ngValue]="s.id">{{ s.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>BU</label>
+              <select class="form-control" [(ngModel)]="buId">
+                <option [ngValue]="null">Ninguna</option>
+                <option *ngFor="let b of busFiltradas" [ngValue]="b.id">{{ b.nombre }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 mb-3">
+      <div class="inv-card inv-card--accent2">
+        <div class="inv-card__head">Filtros regionales</div>
+        <div class="inv-card__body">
+          <div class="form-row-2">
+            <div>
+              <label>Región</label>
+              <select class="form-control" [(ngModel)]="regionId" (ngModelChange)="onRegionChange()">
+                <option [ngValue]="null">Todas</option>
+                <option *ngFor="let r of regionesFiltradas" [ngValue]="r.id">{{ r.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>Ciudad</label>
+              <select class="form-control" [(ngModel)]="ciudadId" [disabled]="!regionId">
+                <option [ngValue]="null">Todas</option>
+                <option *ngFor="let c of ciudades" [ngValue]="c.id">{{ c.nombre }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 mb-3">
+      <div class="inv-card inv-card--teal">
+        <div class="inv-card__head">Filtros de tiempo</div>
+        <div class="inv-card__body">
+          <div class="form-row-2">
+            <div>
+              <label>Periodo</label>
+              <select class="form-control" [(ngModel)]="periodo">
+                <option *ngFor="let p of filtros!.periodos" [ngValue]="p.id">{{ p.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>Fecha final</label>
+              <input type="date" class="form-control" [(ngModel)]="fechaFinal" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6 mb-3">
+      <div class="inv-card inv-card--teal2">
+        <div class="inv-card__head">Configuraciones adicionales</div>
+        <div class="inv-card__body">
+          <div class="form-row-2">
+            <div>
+              <label>Tarifa</label>
+              <select class="form-control" [(ngModel)]="tipoTarifa">
+                <option *ngFor="let t of filtros!.tarifas" [ngValue]="t.id">{{ t.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>Vista</label>
+              <select class="form-control" [(ngModel)]="vista">
+                <option *ngFor="let v of filtros!.vistas" [ngValue]="v.id">{{ v.nombre }}</option>
+              </select>
+            </div>
+            <div>
+              <label>Tipo de cambio</label>
+              <select class="form-control" [(ngModel)]="exchangeRate">
+                <option *ngFor="let e of filtros!.exchangeRates" [ngValue]="e.id">{{ e.nombre }}</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="inv-card inv-card--table mb-3" *ngIf="resultados.length">
+    <div class="inv-card__head">Resultados (UNPIVOT)</div>
+    <div class="inv-card__body p-0">
+      <div class="table-responsive">
+        <table class="table table-sm table-hover inv-table mb-0">
+          <thead>
+            <tr>
+              <th class="sticky-col">Marca / Periodo</th>
+              <th *ngFor="let p of pivotPeriodos">{{ p }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let m of pivotMarcas">
+              <th class="sticky-col">{{ m }}</th>
+              <td *ngFor="let p of pivotPeriodos">{{ formatNum(cell(m, p)) }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div *ngIf="!resultados.length && !loadingRun" class="text-muted small mb-3">Pulse Run para mostrar resultados y gráficos.</div>
+
+  <div class="row inv-charts g-3">
+    <div class="col-12 col-xl-6">
+      <div class="inv-chart-box"><div #chartBarras class="inv-chart"></div></div>
+    </div>
+    <div class="col-12 col-md-4 col-xl-2">
+      <div class="inv-chart-box"><div #pieCategoria class="inv-chart inv-chart--pie"></div></div>
+    </div>
+    <div class="col-12 col-md-4 col-xl-2">
+      <div class="inv-chart-box"><div #pieMarca class="inv-chart inv-chart--pie"></div></div>
+    </div>
+    <div class="col-12 col-md-4 col-xl-2">
+      <div class="inv-chart-box"><div #pieMedio class="inv-chart inv-chart--pie"></div></div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="p-4 text-center text-muted" *ngIf="loadingFiltros">Cargando filtros…</div>
+  <div class="p-4 text-center text-danger" *ngIf="!loadingFiltros && errorFiltros">{{ errorFiltros }}</div>
+</ng-template>

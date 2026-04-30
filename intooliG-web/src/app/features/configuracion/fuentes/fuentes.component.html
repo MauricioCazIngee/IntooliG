@@ -1,0 +1,268 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <h4 style="margin: 0">Fuentes</h4>
+    </div>
+    <div class="card-body card-body-custom">
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'fuente'" href="javascript:void(0)" (click)="setTab('fuente')">Fuentes Alta-Baja-Cambios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'marcaFuente'" href="javascript:void(0)" (click)="setTab('marcaFuente')"
+            >Marcas Fuente Alta-Baja-Cambios</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'versionFuente'" href="javascript:void(0)" (click)="setTab('versionFuente')"
+            >Versiones Fuente Alta-Baja-Cambios</a
+          >
+        </li>
+      </ul>
+
+      <!-- TAB 1 -->
+      <div *ngIf="tab === 'fuente'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="fuentesPageSize" (ngModelChange)="fuentesPage = 1; loadFuentes()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">País</label>
+            <select class="form-control form-control-sm" [(ngModel)]="fuentesPaisFilter" (ngModelChange)="fuentesPage = 1; loadFuentes()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let p of paisesOptions" [ngValue]="p.id">{{ p.nombrePais }}</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="fuentesSearch" (keyup.enter)="fuentesPage = 1; loadFuentes()" />
+          </div>
+          <div class="col-md-3 text-md-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new mt-4" (click)="openFuenteNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Nombre fuente</th>
+                <th>País</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of fuentes">
+                <td>{{ r.nombreFuente }}</td>
+                <td>{{ r.nombrePais }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openFuenteEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteFuente(r)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="fuentesTotal > fuentesPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="fuentesPage <= 1" (click)="fuentesPage = fuentesPage - 1; loadFuentes()">
+            Anterior
+          </button>
+          <span class="small">Página {{ fuentesPage }} / {{ pageNumbers(fuentesTotal, fuentesPageSize).length }}</span>
+          <button
+            type="button"
+            class="btn btn-sm btn-light"
+            [disabled]="fuentesPage * fuentesPageSize >= fuentesTotal"
+            (click)="fuentesPage = fuentesPage + 1; loadFuentes()"
+          >
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="fuentesLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+
+      <!-- TAB 2 -->
+      <div *ngIf="tab === 'marcaFuente'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="mfPageSize" (ngModelChange)="mfPage = 1; loadMarcasFuente()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">Fuente</label>
+            <select class="form-control form-control-sm" [(ngModel)]="mfFuenteFilter" (ngModelChange)="mfPage = 1; loadMarcasFuente()">
+              <option [ngValue]="null">Todas</option>
+              <option *ngFor="let f of fuentesOptions" [ngValue]="f.id">{{ f.nombreFuente }}</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="mfSearch" (keyup.enter)="mfPage = 1; loadMarcasFuente()" />
+          </div>
+          <div class="col-md-3 text-md-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new mt-4" (click)="openMfNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Nombre marca fuente</th>
+                <th>Fuente</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of marcasFuente">
+                <td>{{ r.nombreMarcaFuente }}</td>
+                <td>{{ r.nombreFuente }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openMfEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteMf(r)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="mfTotal > mfPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="mfPage <= 1" (click)="mfPage = mfPage - 1; loadMarcasFuente()">Anterior</button>
+          <span class="small">Página {{ mfPage }} / {{ pageNumbers(mfTotal, mfPageSize).length }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="mfPage * mfPageSize >= mfTotal" (click)="mfPage = mfPage + 1; loadMarcasFuente()">
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="mfLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+
+      <!-- TAB 3 -->
+      <div *ngIf="tab === 'versionFuente'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="vfPageSize" (ngModelChange)="vfPage = 1; loadVersiones()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Fuente</label>
+            <select class="form-control form-control-sm" [(ngModel)]="vfFuenteFilter" (ngModelChange)="vfPage = 1; loadVersiones()">
+              <option [ngValue]="null">Todas</option>
+              <option *ngFor="let f of fuentesOptions" [ngValue]="f.id">{{ f.nombreFuente }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Categoría</label>
+            <select class="form-control form-control-sm" [(ngModel)]="vfCategoriaFilter" (ngModelChange)="vfPage = 1; loadVersiones()">
+              <option [ngValue]="null">Todas</option>
+              <option *ngFor="let c of categoriasOptions" [ngValue]="c.id">{{ c.nombreCategoria }}</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="vfSearch" (keyup.enter)="vfPage = 1; loadVersiones()" />
+          </div>
+          <div class="col-md-2 text-md-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new mt-4" (click)="openVfNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Versión fuente</th>
+                <th>Fuente</th>
+                <th>Categoría</th>
+                <th>Marca cliente</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of versiones">
+                <td>{{ r.nombreVersionFuente }}</td>
+                <td>{{ r.nombreFuente }}</td>
+                <td>{{ r.nombreCategoria }}</td>
+                <td>{{ r.nombreMarca }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openVfEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteVf(r)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="vfTotal > vfPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="vfPage <= 1" (click)="vfPage = vfPage - 1; loadVersiones()">Anterior</button>
+          <span class="small">Página {{ vfPage }} / {{ pageNumbers(vfTotal, vfPageSize).length }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="vfPage * vfPageSize >= vfTotal" (click)="vfPage = vfPage + 1; loadVersiones()">
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="vfLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-fuente-modal
+  [visible]="showFuenteModal"
+  [saving]="savingFuente"
+  [fuente]="editingFuente"
+  [paisesOptions]="paisesOptions"
+  (close)="showFuenteModal = false"
+  (save)="saveFuente($event)"
+/>
+
+<app-marca-fuente-modal
+  [visible]="showMfModal"
+  [saving]="savingMf"
+  [row]="editingMf"
+  [fuentesOptions]="fuentesOptions"
+  [marcasOptions]="marcasOptions"
+  (close)="showMfModal = false"
+  (save)="saveMf($event)"
+/>
+
+<app-version-fuente-modal
+  [visible]="showVfModal"
+  [saving]="savingVf"
+  [row]="editingVf"
+  [fuentesOptions]="fuentesOptions"
+  [categoriasOptions]="categoriasOptions"
+  [busOptions]="busOptions"
+  [marcasOptions]="marcasOptions"
+  [versionTvOptions]="versionTvOptions"
+  (close)="showVfModal = false"
+  (save)="saveVf($event)"
+/>
+
+<app-confirm-dialog
+  [visible]="showDelete"
+  [loading]="deleting"
+  title="Confirmar"
+  [message]="
+    deleteKind === 'fuente'
+      ? '¿Desactivar la fuente ' + deleteLabel + '?'
+      : deleteKind === 'marcaFuente'
+        ? '¿Eliminar el registro ' + deleteLabel + '?'
+        : '¿Desactivar la versión fuente ' + deleteLabel + '?'
+  "
+  [confirmText]="deleteKind === 'marcaFuente' ? 'Eliminar' : 'Desactivar'"
+  cancelText="Cancelar"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDelete()"
+/>

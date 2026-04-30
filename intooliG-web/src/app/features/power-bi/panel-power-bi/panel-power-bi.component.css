@@ -1,0 +1,11 @@
+.pbi-host {
+  min-height: 70vh;
+  width: 100%;
+  background: #f4f4f4;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+.power-bi-panel h3 {
+  color: #1a2238;
+}

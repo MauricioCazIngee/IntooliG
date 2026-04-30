@@ -3,7 +3,7 @@ import {
   __spreadValues
 } from "./chunk-TXDUYLVM.js";
 
-// ../../node_modules/@kurkle/color/dist/color.esm.js
+// node_modules/@kurkle/color/dist/color.esm.js
 function round(v) {
   return v + 0.5 | 0;
 }
@@ -560,7 +560,7 @@ var Color = class _Color {
   }
 };
 
-// ../../node_modules/chart.js/dist/chunks/helpers.dataset.js
+// node_modules/chart.js/dist/chunks/helpers.dataset.js
 function noop() {
 }
 var uid = /* @__PURE__ */ (() => {
@@ -2970,7 +2970,7 @@ function getDatasetClipArea(chart, meta) {
   };
 }
 
-// ../../node_modules/chart.js/dist/chart.js
+// node_modules/chart.js/dist/chart.js
 var Animator = class {
   constructor() {
     this._request = null;

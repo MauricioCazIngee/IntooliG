@@ -1,0 +1,40 @@
+.log-box {
+  border: 1px solid #dcdcdc;
+  border-radius: 4px;
+  padding: 8px;
+  background: #fafafa;
+  min-height: 84px;
+  font-size: 0.82rem;
+}
+
+.subcard {
+  border: 1px solid #e2e6ea;
+  border-radius: 6px;
+  padding: 12px;
+  background: #fff;
+  height: 100%;
+}
+
+.subcard h6 {
+  margin: 0 0 10px;
+  font-weight: 600;
+}
+
+.btn-new {
+  background-color: #5dc1a5 !important;
+  border-color: #5dc1a5 !important;
+  color: #fff;
+}
+
+.card-custom {
+  border-radius: 8px;
+}
+
+.card-header-custom {
+  background: #151b2d;
+  color: #fff;
+}
+
+.card-body-custom {
+  background: #fff;
+}

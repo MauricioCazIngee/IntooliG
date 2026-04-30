@@ -1,0 +1,299 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <h4 style="margin: 0">Rubros - Conceptos</h4>
+    </div>
+    <div class="card-body card-body-custom">
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'rubros'" href="javascript:void(0)" (click)="setTab('rubros')">Rubro Alta-Baja-Cambios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'conceptos'" href="javascript:void(0)" (click)="setTab('conceptos')"
+            >Concepto - Rubro Alta-Baja-Cambios</a
+          >
+        </li>
+      </ul>
+
+      <!-- TAB 1 -->
+      <div *ngIf="tab === 'rubros'">
+        <div class="sub-block mb-3">
+          <div class="d-flex flex-wrap align-items-center justify-content-between mb-2">
+            <h6 class="mb-0">Catálogo de nombres de rubro</h6>
+            <button *ngIf="auth.isAdmin()" type="button" class="btn btn-sm btn-outline-secondary" (click)="openRgNew()">Nuevo nombre</button>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-bordered table-sm table-striped mb-0">
+              <thead>
+                <tr>
+                  <th>Nombre</th>
+                  <th>Activo</th>
+                  <th *ngIf="auth.isAdmin()">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let g of rubrosGeneralesFull">
+                  <td>{{ g.nombreRubro }}</td>
+                  <td>{{ g.activo ? '✅' : '❌' }}</td>
+                  <td *ngIf="auth.isAdmin()" class="actions">
+                    <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openRgEdit(g)">
+                      <i class="fa fa-pencil"></i>
+                    </button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p class="text-muted small mb-0 mt-1">Para eliminar un nombre de rubro use la API o contacte al administrador si tiene dependencias.</p>
+        </div>
+
+        <div class="toolbar row mb-2">
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">Categoría</label>
+            <select class="form-control form-control-sm" [(ngModel)]="rubrosCatFilter" (ngModelChange)="onSearchRubros()">
+              <option [ngValue]="null">Todas</option>
+              <option *ngFor="let c of categoriasOptions" [ngValue]="c.id">{{ c.nombreCategoria }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Activo</label>
+            <select class="form-control form-control-sm" [(ngModel)]="rubrosActivoFilter" (ngModelChange)="onSearchRubros()">
+              <option [ngValue]="null">Todos</option>
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm d-inline-block w-auto" [(ngModel)]="rubrosPageSize" (ngModelChange)="changeRubrosPageSize()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2 text-md-right">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm d-inline-block w-auto ml-1" [(ngModel)]="rubrosSearch" (keyup.enter)="onSearchRubros()" />
+            <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="onSearchRubros()">Buscar</button>
+          </div>
+          <div class="col-md-2 text-md-right" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new" (click)="openComboNew()">Nuevo</button>
+          </div>
+        </div>
+
+        <div class="scroll table-responsive" style="background-color: #ffffff">
+          <table class="table table-bordered table-striped table-hover catalog-table">
+            <thead>
+              <tr>
+                <th>Rubro</th>
+                <th>Categoría</th>
+                <th>Valor</th>
+                <th>Activo</th>
+                <th>Cliente</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="rubrosLoading">
+                <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="text-center py-4">Cargando...</td>
+              </tr>
+              <tr *ngIf="!rubrosLoading && rubrosError">
+                <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="text-center text-danger py-4">{{ rubrosError }}</td>
+              </tr>
+              <tr *ngFor="let r of rubros">
+                <td>{{ r.rubroNombre }}</td>
+                <td>{{ r.categoriaNombre }}</td>
+                <td>{{ r.valorRubro }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td>{{ r.clienteNombre || '—' }}</td>
+                <td class="actions" *ngIf="auth.isAdmin()">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openComboEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm btn-delete" (click)="askDelete('rubroCombo', r.id, r.rubroNombre + ' / ' + r.categoriaNombre)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!rubrosLoading && !rubrosError && rubros.length === 0">
+                <td [attr.colspan]="auth.isAdmin() ? 6 : 5" class="text-center py-4">Sin registros.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="!rubrosLoading && rubrosTotal > 0">
+          <button class="btn-page" [disabled]="rubrosPage === 1" (click)="goRubrosPage(rubrosPage - 1)">Anterior</button>
+          <button class="btn-page" *ngFor="let p of pageNumbers(rubrosTotal, rubrosPageSize)" [class.active]="p === rubrosPage" (click)="goRubrosPage(p)">
+            {{ p }}
+          </button>
+          <button
+            class="btn-page"
+            [disabled]="rubrosPage >= pageNumbers(rubrosTotal, rubrosPageSize).length"
+            (click)="goRubrosPage(rubrosPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+
+      <!-- TAB 2 -->
+      <div *ngIf="tab === 'conceptos'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Categoría</label>
+            <select class="form-control form-control-sm" [(ngModel)]="conceptosCatFilter" (ngModelChange)="onSearchConceptos()">
+              <option [ngValue]="null">Todas</option>
+              <option *ngFor="let c of categoriasOptions" [ngValue]="c.id">{{ c.nombreCategoria }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Rubro</label>
+            <select class="form-control form-control-sm" [(ngModel)]="conceptosRubroFilter" (ngModelChange)="onSearchConceptos()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let g of rubrosGeneralesFull" [ngValue]="g.id">{{ g.nombreRubro }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Activo</label>
+            <select class="form-control form-control-sm" [(ngModel)]="conceptosActivoFilter" (ngModelChange)="onSearchConceptos()">
+              <option [ngValue]="null">Todos</option>
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Top</label>
+            <select class="form-control form-control-sm" [(ngModel)]="conceptosTopFilter" (ngModelChange)="onSearchConceptos()">
+              <option [ngValue]="null">Todos</option>
+              <option [ngValue]="true">Sí</option>
+              <option [ngValue]="false">No</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select
+              class="form-control form-control-sm d-inline-block w-auto"
+              [(ngModel)]="conceptosPageSize"
+              (ngModelChange)="changeConceptosPageSize()"
+            >
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-12 col-lg-8 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input
+              class="form-control form-control-sm d-inline-block w-auto ml-1"
+              [(ngModel)]="conceptosSearch"
+              (keyup.enter)="onSearchConceptos()"
+            />
+            <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="onSearchConceptos()">Buscar</button>
+          </div>
+          <div class="col-md-12 col-lg-4 text-lg-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new" (click)="openConceptoNew()">Nuevo</button>
+          </div>
+        </div>
+
+        <div class="scroll table-responsive" style="background-color: #ffffff">
+          <table class="table table-bordered table-striped table-hover catalog-table">
+            <thead>
+              <tr>
+                <th>Concepto</th>
+                <th>Categoría</th>
+                <th>Rubro</th>
+                <th>Posición</th>
+                <th>Valor</th>
+                <th>Activo</th>
+                <th>Top</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="conceptosLoading">
+                <td [attr.colspan]="auth.isAdmin() ? 8 : 7" class="text-center py-4">Cargando...</td>
+              </tr>
+              <tr *ngIf="!conceptosLoading && conceptosError">
+                <td [attr.colspan]="auth.isAdmin() ? 8 : 7" class="text-center text-danger py-4">{{ conceptosError }}</td>
+              </tr>
+              <tr *ngFor="let c of conceptos">
+                <td>{{ c.nombreConcepto }}</td>
+                <td>{{ c.categoriaNombre }}</td>
+                <td>{{ c.rubroNombre }}</td>
+                <td>{{ c.posicion }}</td>
+                <td>{{ c.valor ?? '—' }}</td>
+                <td>{{ c.activo ? '✅' : '❌' }}</td>
+                <td>{{ c.top ? '✅' : '❌' }}</td>
+                <td class="actions" *ngIf="auth.isAdmin()">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openConceptoEdit(c)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm btn-delete" (click)="askDelete('concepto', c.id, c.nombreConcepto)">
+                    <i class="fa fa-trash"></i>
+                  </button>
+                </td>
+              </tr>
+              <tr *ngIf="!conceptosLoading && !conceptosError && conceptos.length === 0">
+                <td [attr.colspan]="auth.isAdmin() ? 8 : 7" class="text-center py-4">Sin registros.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-bar" *ngIf="!conceptosLoading && conceptosTotal > 0">
+          <button class="btn-page" [disabled]="conceptosPage === 1" (click)="goConceptosPage(conceptosPage - 1)">Anterior</button>
+          <button
+            class="btn-page"
+            *ngFor="let p of pageNumbers(conceptosTotal, conceptosPageSize)"
+            [class.active]="p === conceptosPage"
+            (click)="goConceptosPage(p)"
+          >
+            {{ p }}
+          </button>
+          <button
+            class="btn-page"
+            [disabled]="conceptosPage >= pageNumbers(conceptosTotal, conceptosPageSize).length"
+            (click)="goConceptosPage(conceptosPage + 1)"
+          >
+            Siguiente
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-rubro-general-modal
+  [visible]="showRgModal"
+  [saving]="savingRg"
+  [item]="editingRg"
+  (close)="closeRgModal()"
+  (save)="saveRg($event)"
+/>
+
+<app-rubro-combo-modal
+  [visible]="showComboModal"
+  [saving]="savingCombo"
+  [rubrosGenerales]="rubrosGeneralesFull"
+  [categorias]="categoriasOptions"
+  [clientes]="clientesOptions"
+  [combo]="editingCombo"
+  (close)="closeComboModal()"
+  (save)="saveCombo($event)"
+/>
+
+<app-concepto-catalogo-modal
+  [visible]="showConceptoModal"
+  [saving]="savingConcepto"
+  [rubrosGenerales]="rubrosGeneralesFull"
+  [categorias]="categoriasOptions"
+  [concepto]="editingConcepto"
+  (close)="closeConceptoModal()"
+  (save)="saveConcepto($event)"
+/>
+
+<app-confirm-dialog
+  [visible]="showDelete"
+  [loading]="deleting"
+  title="Confirmar eliminación"
+  [message]="'¿Eliminar ' + deleteLabel + '?'"
+  confirmText="Sí"
+  cancelText="No"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDelete()"
+/>

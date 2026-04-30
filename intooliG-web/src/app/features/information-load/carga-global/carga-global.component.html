@@ -1,0 +1,103 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <h4 class="m-0">Information Load / Carga Global</h4>
+    </div>
+
+    <div class="card-body card-body-custom">
+      <div class="row">
+        <div class="col-md-4 mb-3">
+          <label class="small mb-1">País</label>
+          <select class="form-control form-control-sm" [(ngModel)]="paisId" (ngModelChange)="onPaisChange()">
+            <option [ngValue]="null">Seleccione país</option>
+            <option *ngFor="let p of filtros?.paises ?? []" [ngValue]="p.id">{{ p.nombre }}</option>
+          </select>
+        </div>
+        <div class="col-md-8 mb-3">
+          <label class="small mb-1">Último log de carga</label>
+          <div class="log-box">
+            <div><strong>Estatus:</strong> {{ ultimoLog?.estatus || 'N/A' }}</div>
+            <div><strong>Mensaje:</strong> {{ ultimoLog?.mensaje || 'Sin datos' }}</div>
+            <div><strong>Fecha:</strong> {{ ultimoLog?.fechaProceso ? (ultimoLog?.fechaProceso | date:'short') : 'N/A' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 mb-3">
+          <div class="subcard">
+            <h6>Upload de archivos</h6>
+            <input type="file" class="form-control form-control-sm mb-2" (change)="onFileSelected($event)" />
+            <button class="btn btn-sm btn-success btn-new" type="button" [disabled]="uploading || !selectedFile" (click)="upload()">
+              {{ uploading ? 'Cargando...' : 'Subir archivo' }}
+            </button>
+            <div class="small text-muted mt-2" *ngIf="ultimoArchivo">Último archivo: {{ ultimoArchivo }}</div>
+          </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+          <div class="subcard">
+            <h6>Ejecución ETL</h6>
+            <label class="small mb-1">Proceso</label>
+            <input class="form-control form-control-sm mb-2" [(ngModel)]="proceso" />
+            <div class="d-flex gap-2 flex-wrap">
+              <button class="btn btn-sm btn-primary" type="button" [disabled]="running" (click)="runProceso()">
+                {{ running ? 'Ejecutando...' : 'Ejecutar proceso' }}
+              </button>
+              <button *ngIf="auth.isAdmin()" class="btn btn-sm btn-outline-secondary" type="button" (click)="finalizarCatalogacion()">
+                Finalizar catalogación país
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="col-lg-6 mb-3">
+          <div class="subcard">
+            <h6>Catalogación disponible</h6>
+            <ul class="mb-0 small">
+              <li>Formatos: {{ (filtros?.formatos ?? []).length }}</li>
+              <li>Versiones TV: {{ (filtros?.versionesTV ?? []).length }}</li>
+              <li>Marcas: {{ (filtros?.marcas ?? []).length }}</li>
+              <li>Productos: {{ (filtros?.productos ?? []).length }}</li>
+              <li>Ciudades: {{ (filtros?.ciudades ?? []).length }}</li>
+              <li>Vehículos: {{ (filtros?.vehiculos ?? []).length }}</li>
+              <li>Targets: {{ (filtros?.targets ?? []).length }}</li>
+              <li>Mediciones: {{ (filtros?.mediciones ?? []).length }}</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="col-lg-6 mb-3">
+          <div class="subcard">
+            <h6>Estado de catalogación por país</h6>
+            <div class="table-responsive">
+              <table class="table table-bordered table-sm mb-0">
+                <thead>
+                  <tr>
+                    <th>Catálogo</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let row of estadoCatalogacion">
+                    <td>{{ row.catalogo }}</td>
+                    <td>{{ row.completado ? 'Completado' : 'Pendiente' }}</td>
+                    <td>{{ row.fechaActualizacion ? (row.fechaActualizacion | date:'short') : 'N/A' }}</td>
+                  </tr>
+                  <tr *ngIf="!estadoCatalogacion.length">
+                    <td colspan="3" class="text-muted text-center">Sin registros.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p *ngIf="loading" class="small text-muted mb-0">Cargando información...</p>
+    </div>
+  </div>
+</div>

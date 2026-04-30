@@ -1,0 +1,47 @@
+.card-custom {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 10%);
+}
+
+.card-header-custom {
+  background-color: #f5f5f5;
+  border-bottom: 1px solid #ddd;
+  padding: 15px;
+}
+
+.card-body-custom {
+  padding: 15px;
+}
+
+.nav-tabs .nav-link {
+  cursor: pointer;
+}
+
+.actions {
+  min-width: 100px;
+  text-align: center;
+}
+
+.actions .btn + .btn {
+  margin-left: 6px;
+}
+
+.btn-edit {
+  color: #333;
+}
+
+.btn-new {
+  background-color: #5dc1a5 !important;
+  border-color: #5dc1a5 !important;
+  color: #fff;
+}
+
+.pagination-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}

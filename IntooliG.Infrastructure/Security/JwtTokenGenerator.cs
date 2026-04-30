@@ -28,6 +28,7 @@ public class JwtTokenGenerator : IJwtTokenGenerator
             new(JwtRegisteredClaimNames.Sub, usuario.Id.ToString()),
             new(JwtRegisteredClaimNames.Email, usuario.Email),
             new("nombre", usuario.Nombre),
+            new("cliente_id", usuario.ClienteId.ToString()),
             new(ClaimTypes.Role, UsuarioAppRoles.FromRolId(usuario.RolId))
         };
 

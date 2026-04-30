@@ -1,0 +1,424 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom">
+      <h4 style="margin: 0">Región - Ciudad</h4>
+    </div>
+    <div class="card-body card-body-custom">
+      <ul class="nav nav-tabs mb-3 flex-wrap">
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'paises'" href="javascript:void(0)" (click)="setTab('paises')">País Alta-Baja-Cambios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'estados'" href="javascript:void(0)" (click)="setTab('estados')">Estado Alta-Baja-Cambios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'regiones'" href="javascript:void(0)" (click)="setTab('regiones')">Región Alta-Baja-Cambios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'ciudades'" href="javascript:void(0)" (click)="setTab('ciudades')">Ciudad Alta-Baja-Cambios</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" [class.active]="tab === 'poblacion'" href="javascript:void(0)" (click)="setTab('poblacion')">Población Alta-Baja-Cambios</a>
+        </li>
+      </ul>
+
+      <!-- TAB País -->
+      <div *ngIf="tab === 'paises'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="paisesPageSize" (ngModelChange)="paisesPage = 1; loadPaises()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2 text-md-right">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm d-inline-block w-auto" [(ngModel)]="paisesSearch" (keyup.enter)="paisesPage = 1; loadPaises()" />
+            <button type="button" class="btn btn-sm btn-secondary ml-1" (click)="paisesPage = 1; loadPaises()">Buscar</button>
+          </div>
+          <div class="col-md-6 text-md-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new" (click)="openPaisNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>País</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of paises">
+                <td>{{ p.nombrePais }}</td>
+                <td>{{ p.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openPaisEdit(p)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeletePais(p)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="paisesTotal > paisesPageSize">
+          <span class="small text-muted">Total {{ paisesTotal }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="paisesPage <= 1" (click)="paisesPage = paisesPage - 1; loadPaises()">Anterior</button>
+          <span class="small">Página {{ paisesPage }} / {{ pageNumbers(paisesTotal, paisesPageSize).length }}</span>
+          <button
+            type="button"
+            class="btn btn-sm btn-light"
+            [disabled]="paisesPage >= pageNumbers(paisesTotal, paisesPageSize).length"
+            (click)="paisesPage = paisesPage + 1; loadPaises()"
+          >
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="paisesLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+
+      <!-- TAB Estado -->
+      <div *ngIf="tab === 'estados'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">País</label>
+            <select class="form-control form-control-sm" [(ngModel)]="estadosPaisFilter" (ngModelChange)="estadosPage = 1; loadEstados()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let p of paisesOptions" [ngValue]="p.id">{{ p.nombrePais }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="estadosPageSize" (ngModelChange)="estadosPage = 1; loadEstados()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="estadosSearch" (keyup.enter)="estadosPage = 1; loadEstados()" />
+          </div>
+          <div class="col-md-3 text-md-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new mt-4" (click)="openEstadoNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Estado</th>
+                <th>País</th>
+                <th>Código Estado</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let e of estados">
+                <td>{{ e.nombreEstado }}</td>
+                <td>{{ e.nombrePais }}</td>
+                <td>{{ e.codigoMapaNombre || '—' }}</td>
+                <td>{{ e.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openEstadoEdit(e)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteEstado(e)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="estadosTotal > estadosPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="estadosPage <= 1" (click)="estadosPage = estadosPage - 1; loadEstados()">Anterior</button>
+          <span class="small">Página {{ estadosPage }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="estadosPage * estadosPageSize >= estadosTotal" (click)="estadosPage = estadosPage + 1; loadEstados()">
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="estadosLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+
+      <!-- TAB Región -->
+      <div *ngIf="tab === 'regiones'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">País</label>
+            <select class="form-control form-control-sm" [(ngModel)]="regionesPaisFilter" (ngModelChange)="regionesPage = 1; loadRegiones()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let p of paisesOptions" [ngValue]="p.id">{{ p.nombrePais }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="regionesPageSize" (ngModelChange)="regionesPage = 1; loadRegiones()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="regionesSearch" (keyup.enter)="regionesPage = 1; loadRegiones()" />
+          </div>
+          <div class="col-md-3 text-md-right mb-2" *ngIf="auth.isAdmin()">
+            <button type="button" class="btn btn-success btn-sm btn-new mt-4" (click)="openRegionNew()">Nuevo</button>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>País</th>
+                <th>Región</th>
+                <th>Ciudades</th>
+                <th>Es Nacional</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let r of regiones">
+                <td>{{ r.nombrePais }}</td>
+                <td>{{ r.nombreRegion }}</td>
+                <td class="small">{{ r.ciudadesResumen || '—' }}</td>
+                <td>{{ r.esNacional ? '✅' : '❌' }}</td>
+                <td>{{ r.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openRegionEdit(r)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteRegion(r)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="regionesTotal > regionesPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="regionesPage <= 1" (click)="regionesPage = regionesPage - 1; loadRegiones()">Anterior</button>
+          <span class="small">Página {{ regionesPage }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="regionesPage * regionesPageSize >= regionesTotal" (click)="regionesPage = regionesPage + 1; loadRegiones()">
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="regionesLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+
+      <!-- TAB Ciudad -->
+      <div *ngIf="tab === 'ciudades'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">País</label>
+            <select
+              class="form-control form-control-sm"
+              [(ngModel)]="ciudadesPaisFilter"
+              (ngModelChange)="loadEstadosForPais($event, 'ciudad'); ciudadesEstadoFilter = null; ciudadesPage = 1; loadCiudades()"
+            >
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let p of paisesOptions" [ngValue]="p.id">{{ p.nombrePais }}</option>
+            </select>
+          </div>
+          <div class="col-md-3 mb-2">
+            <label class="mb-0 small">Estado</label>
+            <select class="form-control form-control-sm" [(ngModel)]="ciudadesEstadoFilter" (ngModelChange)="ciudadesPage = 1; loadCiudades()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let e of estadosForModal" [ngValue]="e.id">{{ e.nombreEstado }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="ciudadesPageSize" (ngModelChange)="ciudadesPage = 1; loadCiudades()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="ciudadesSearch" (keyup.enter)="ciudadesPage = 1; loadCiudades()" />
+          </div>
+        </div>
+        <div class="text-md-right mb-2" *ngIf="auth.isAdmin()">
+          <button type="button" class="btn btn-success btn-sm btn-new" (click)="openCiudadNew()">Nuevo</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Ciudad</th>
+                <th>Nombre corto</th>
+                <th>Estado</th>
+                <th>País</th>
+                <th>Ciudad principal</th>
+                <th>Activo</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let c of ciudades">
+                <td>{{ c.nombreCiudad }}</td>
+                <td>{{ c.nombreCorto || '—' }}</td>
+                <td>{{ c.nombreEstado }}</td>
+                <td>{{ c.nombrePais }}</td>
+                <td>{{ c.ciudadPrincipal ? '✅' : '❌' }}</td>
+                <td>{{ c.activo ? '✅' : '❌' }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openCiudadEdit(c)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeleteCiudad(c)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="ciudadesTotal > ciudadesPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="ciudadesPage <= 1" (click)="ciudadesPage = ciudadesPage - 1; loadCiudades()">Anterior</button>
+          <span class="small">Página {{ ciudadesPage }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="ciudadesPage * ciudadesPageSize >= ciudadesTotal" (click)="ciudadesPage = ciudadesPage + 1; loadCiudades()">
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="ciudadesLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+
+      <!-- TAB Población -->
+      <div *ngIf="tab === 'poblacion'">
+        <div class="toolbar row mb-2">
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">País</label>
+            <select class="form-control form-control-sm" [(ngModel)]="poblacionesPaisFilter" (ngModelChange)="poblacionesEstadoFilter = null; poblacionesPage = 1; loadEstadosForPais(poblacionesPaisFilter, 'poblacion'); loadPoblaciones()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let p of paisesOptions" [ngValue]="p.id">{{ p.nombrePais }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Estado</label>
+            <select class="form-control form-control-sm" [(ngModel)]="poblacionesEstadoFilter" (ngModelChange)="poblacionesPage = 1; loadPoblaciones()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let e of poblacionEstadosOptions" [ngValue]="e.id">{{ e.nombreEstado }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Año</label>
+            <select class="form-control form-control-sm" [(ngModel)]="poblacionesAnioFilter" (ngModelChange)="poblacionesPage = 1; loadPoblaciones()">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let a of aniosOptions" [ngValue]="a">{{ a }}</option>
+            </select>
+          </div>
+          <div class="col-md-2 mb-2">
+            <label class="mb-0 small">Mostrar</label>
+            <select class="form-control form-control-sm" [(ngModel)]="poblacionesPageSize" (ngModelChange)="poblacionesPage = 1; loadPoblaciones()">
+              <option [ngValue]="10">10</option>
+              <option [ngValue]="25">25</option>
+              <option [ngValue]="50">50</option>
+            </select>
+          </div>
+          <div class="col-md-4 mb-2">
+            <label class="mb-0 small">Buscar</label>
+            <input class="form-control form-control-sm" [(ngModel)]="poblacionesSearch" (keyup.enter)="poblacionesPage = 1; loadPoblaciones()" />
+          </div>
+        </div>
+        <div class="text-md-right mb-2" *ngIf="auth.isAdmin()">
+          <button type="button" class="btn btn-success btn-sm btn-new" (click)="openPoblacionNew()">Nuevo</button>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-bordered table-sm table-striped mb-0">
+            <thead>
+              <tr>
+                <th>Ciudad</th>
+                <th>Estado</th>
+                <th>País</th>
+                <th>Año</th>
+                <th>Población</th>
+                <th *ngIf="auth.isAdmin()">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let p of poblaciones">
+                <td>{{ p.nombreCiudad }}</td>
+                <td>{{ p.nombreEstado }}</td>
+                <td>{{ p.nombrePais }}</td>
+                <td>{{ p.anio }}</td>
+                <td>{{ p.cantidad | number }}</td>
+                <td *ngIf="auth.isAdmin()" class="actions">
+                  <button type="button" class="btn btn-default btn-sm btn-edit" (click)="openPoblacionEdit(p)"><i class="fa fa-pencil"></i></button>
+                  <button type="button" class="btn btn-default btn-sm" (click)="askDeletePoblacion(p)"><i class="fa fa-trash"></i></button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="pagination-wrap" *ngIf="poblacionesTotal > poblacionesPageSize">
+          <button type="button" class="btn btn-sm btn-light" [disabled]="poblacionesPage <= 1" (click)="poblacionesPage = poblacionesPage - 1; loadPoblaciones()">Anterior</button>
+          <span class="small">Página {{ poblacionesPage }}</span>
+          <button type="button" class="btn btn-sm btn-light" [disabled]="poblacionesPage * poblacionesPageSize >= poblacionesTotal" (click)="poblacionesPage = poblacionesPage + 1; loadPoblaciones()">
+            Siguiente
+          </button>
+        </div>
+        <p *ngIf="poblacionesLoading" class="text-muted small mb-0">Cargando…</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-pais-modal
+  [visible]="showPaisModal"
+  [saving]="savingPais"
+  [pais]="editingPais"
+  (close)="showPaisModal = false"
+  (save)="savePais($event)"
+/>
+
+<app-estado-modal
+  [visible]="showEstadoModal"
+  [saving]="savingEstado"
+  [estado]="editingEstado"
+  [paisesOptions]="paisesOptions"
+  [codigosOptions]="codigosMapaOptions"
+  (close)="showEstadoModal = false"
+  (save)="saveEstado($event)"
+/>
+
+<app-region-modal
+  [visible]="showRegionModal"
+  [saving]="savingRegion"
+  [region]="editingRegion"
+  [paisesOptions]="paisesOptions"
+  [ciudadOptions]="regionCiudadOptions"
+  (close)="showRegionModal = false"
+  (paisChange)="onRegionModalPais($event)"
+  (save)="saveRegion($event)"
+/>
+
+<app-ciudad-region-modal
+  [visible]="showCiudadModal"
+  [saving]="savingCiudad"
+  [ciudad]="editingCiudad"
+  [paisesOptions]="paisesOptions"
+  [estadosOptions]="estadosForModal"
+  (close)="showCiudadModal = false"
+  (paisChange)="onCiudadModalPais($event)"
+  (save)="saveCiudad($event)"
+/>
+
+<app-poblacion-modal
+  [visible]="showPoblacionModal"
+  [saving]="savingPoblacion"
+  [poblacion]="editingPoblacion"
+  [paisesOptions]="paisesOptions"
+  [estadosOptions]="poblacionEstadosOptions"
+  [ciudadesOptions]="poblacionCiudadesOptions"
+  (close)="showPoblacionModal = false"
+  (paisChange)="onPoblacionModalPais($event)"
+  (estadoChange)="onPoblacionModalEstadoId($event)"
+  (save)="savePoblacion($event)"
+/>
+
+<app-confirm-dialog
+  [visible]="showDelete"
+  [loading]="deleting"
+  title="Confirmar"
+  [message]="'¿Desea ' + (deleteKind === 'poblacion' ? 'eliminar' : 'desactivar') + ' ' + deleteLabel + '?'"
+  [confirmText]="deleteKind === 'poblacion' ? 'Eliminar' : 'Desactivar'"
+  cancelText="Cancelar"
+  (confirm)="confirmDelete()"
+  (cancel)="closeDelete()"
+/>

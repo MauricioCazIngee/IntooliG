@@ -1,0 +1,14 @@
+<div class="power-bi-panel p-2">
+  <h3 class="mb-2">{{ title }}</h3>
+  <p class="text-muted small mb-2">
+    Informe embebido (métricas de inversión, share y tendencias según el diseño en Power BI).
+  </p>
+
+  <div *ngIf="loading" class="alert alert-info">Cargando informe…</div>
+  <div *ngIf="error" class="alert alert-danger" role="alert">
+    {{ error }}
+    <button type="button" class="btn btn-sm btn-outline-secondary ml-2" (click)="reload()">Reintentar</button>
+  </div>
+
+  <div #pbiContainer class="pbi-host" [class.d-none]="loading || error"></div>
+</div>

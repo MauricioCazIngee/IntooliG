@@ -1,0 +1,233 @@
+<div class="container">
+  <div class="card card-custom">
+    <div class="card-header card-header-custom d-flex justify-content-between align-items-center flex-wrap gap-2">
+      <h4 class="mb-0">Generar Evaluación</h4>
+      <i *ngIf="loading" class="fa fa-spinner fa-spin text-success" aria-hidden="true" title="Cargando"></i>
+    </div>
+    <div class="card-body card-body-custom">
+      <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [class.active]="activeTab === 'campanias'"
+            (click)="cambiarTab('campanias')"
+            href="javascript:void(0)"
+            >Campaña Alta-Baja-Cambios</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            [class.active]="activeTab === 'administracion'"
+            (click)="cambiarTab('administracion')"
+            href="javascript:void(0)"
+            >Administración de Campañas</a
+          >
+        </li>
+      </ul>
+
+      <!-- Tab Campañas -->
+      <div *ngIf="activeTab === 'campanias'">
+        <div class="row g-2 mb-3">
+          <div class="col-sm-2">
+            <label class="form-label"><b>Año</b></label>
+            <select class="form-select" [(ngModel)]="campAnio">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let a of anios" [ngValue]="a">{{ a }}</option>
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label"><b>Categoría ID</b></label>
+            <input type="number" class="form-control" [(ngModel)]="campCategoriaId" placeholder="Opcional" />
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label"><b>Estado</b></label>
+            <select class="form-select" [(ngModel)]="campActivo">
+              <option [ngValue]="null">Todos</option>
+              <option [ngValue]="true">Activo</option>
+              <option [ngValue]="false">Inactivo</option>
+            </select>
+          </div>
+          <div class="col-sm-3">
+            <label class="form-label"><b>Búsqueda</b></label>
+            <input type="text" class="form-control" [(ngModel)]="campSearch" placeholder="Campaña o marca" />
+          </div>
+          <div class="col-sm-2 d-flex align-items-end">
+            <button type="button" class="btn btn-success btn-new w-100" (click)="aplicarFiltrosCampanias()" [disabled]="loading">
+              Buscar
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-striped table-hover table-bordered ge-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Campaña</th>
+                <th>Marca</th>
+                <th>Categoría</th>
+                <th>BU</th>
+                <th>Sector</th>
+                <th>Año</th>
+                <th>Estado</th>
+                <th class="actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="!loading && campanias.length === 0">
+                <td colspan="9" class="text-center text-muted py-4">No hay datos disponibles</td>
+              </tr>
+              <tr *ngFor="let row of campanias">
+                <td>{{ row.campaniaId }}</td>
+                <td>{{ row.campania }}</td>
+                <td>{{ row.marca }}</td>
+                <td>{{ row.categoria }}</td>
+                <td>{{ row.bu }}</td>
+                <td>{{ row.sector }}</td>
+                <td>{{ row.anio }}</td>
+                <td>
+                  <span class="badge" [ngClass]="row.activo ? 'badge-active' : 'badge-inactive'">
+                    {{ row.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" title="Ver" disabled>
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-edit" title="Editar" disabled>
+                    <i class="fa fa-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-danger-custom" title="Eliminar" disabled>
+                    <i class="fa fa-trash"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary" title="Evaluación" disabled>
+                    <i class="fa fa-bar-chart"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <nav *ngIf="campTotalPages > 0" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+          <div class="text-muted small">
+            Total: {{ campTotal }} · Página {{ campPage }} de {{ campTotalPages }}
+          </div>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="campPage <= 1">
+              <a class="page-link" href="javascript:void(0)" (click)="campPaginaAnterior()">Anterior</a>
+            </li>
+            <li class="page-item" *ngFor="let n of campNumerosPagina()" [class.active]="n === campPage">
+              <a class="page-link" href="javascript:void(0)" (click)="campCambiarPagina(n)">{{ n }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="campPage >= campTotalPages">
+              <a class="page-link" href="javascript:void(0)" (click)="campPaginaSiguiente()">Siguiente</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+
+      <!-- Tab Administración -->
+      <div *ngIf="activeTab === 'administracion'">
+        <div class="row g-2 mb-3">
+          <div class="col-sm-2">
+            <label class="form-label"><b>Año</b></label>
+            <select class="form-select" [(ngModel)]="admAnio">
+              <option [ngValue]="null">Todos</option>
+              <option *ngFor="let a of anios" [ngValue]="a">{{ a }}</option>
+            </select>
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label"><b>Sector ID</b></label>
+            <input type="number" class="form-control" [(ngModel)]="admSectorId" placeholder="Opcional" />
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label"><b>Búsqueda</b></label>
+            <input type="text" class="form-control" [(ngModel)]="admSearch" placeholder="Campaña, marca, sector, BU..." />
+          </div>
+          <div class="col-sm-2 d-flex align-items-end">
+            <button
+              type="button"
+              class="btn btn-success btn-new w-100"
+              (click)="aplicarFiltrosAdministraciones()"
+              [disabled]="loading"
+            >
+              Buscar
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive">
+          <table class="table table-striped table-hover table-bordered ge-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Sector</th>
+                <th>Unidad negocio</th>
+                <th>Producto</th>
+                <th>Marca</th>
+                <th>Vehículo</th>
+                <th>Campaña</th>
+                <th>Año</th>
+                <th>Semanas</th>
+                <th>Estado</th>
+                <th class="actions">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngIf="!loading && administraciones.length === 0">
+                <td colspan="11" class="text-center text-muted py-4">No hay datos disponibles</td>
+              </tr>
+              <tr *ngFor="let row of administraciones">
+                <td>{{ row.administracionId }}</td>
+                <td>{{ row.sector }}</td>
+                <td>{{ row.unidadNegocio }}</td>
+                <td>{{ row.producto }}</td>
+                <td>{{ row.marca }}</td>
+                <td>{{ row.vehiculo }}</td>
+                <td>{{ row.campania }}</td>
+                <td>{{ row.anio }}</td>
+                <td>{{ row.semanas }}</td>
+                <td>
+                  <span class="badge" [ngClass]="row.activo ? 'badge-active' : 'badge-inactive'">
+                    {{ row.activo ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td class="actions">
+                  <button type="button" class="btn btn-sm btn-outline-secondary" title="Ver" disabled>
+                    <i class="fa fa-eye"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-edit" title="Editar" disabled>
+                    <i class="fa fa-pencil"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-danger-custom" title="Eliminar" disabled>
+                    <i class="fa fa-trash"></i>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-outline-primary" title="Evaluación" disabled>
+                    <i class="fa fa-bar-chart"></i>
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <nav *ngIf="admTotalPages > 0" class="d-flex flex-wrap align-items-center justify-content-between gap-2 mt-2">
+          <div class="text-muted small">Total: {{ admTotal }} · Página {{ admPage }} de {{ admTotalPages }}</div>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" [class.disabled]="admPage <= 1">
+              <a class="page-link" href="javascript:void(0)" (click)="admPaginaAnterior()">Anterior</a>
+            </li>
+            <li class="page-item" *ngFor="let n of admNumerosPagina()" [class.active]="n === admPage">
+              <a class="page-link" href="javascript:void(0)" (click)="admCambiarPagina(n)">{{ n }}</a>
+            </li>
+            <li class="page-item" [class.disabled]="admPage >= admTotalPages">
+              <a class="page-link" href="javascript:void(0)" (click)="admPaginaSiguiente()">Siguiente</a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
